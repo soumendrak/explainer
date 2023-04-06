@@ -131,61 +131,76 @@ function displayResponse(summary) {
   const popupContainer = document.createElement("div");
   popupContainer.style.position = "fixed";
   popupContainer.style.zIndex = "10000";
-  popupContainer.style.right = "20px";
-  popupContainer.style.bottom = "20px";
-  popupContainer.style.display = "flex";
-  popupContainer.style.justifyContent = "center";
-  popupContainer.style.alignItems = "center";
+  popupContainer.style.right = "10px";
+  popupContainer.style.bottom = "10px";
   popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0)";
 
   const popupContent = document.createElement("div");
   popupContent.style.backgroundColor = "#fff";
   popupContent.style.border = "1px solid #ccc";
-  popupContent.style.padding = "20px";
+  popupContent.style.padding = "10px";
   popupContent.style.borderRadius = "10px";
   popupContent.style.width = "50%";
   popupContent.style.minWidth = "300px";
   popupContent.style.maxWidth = "800px";
   popupContent.style.overflowY = "auto";
   popupContent.style.maxHeight = "80%";
-  popupContent.innerHTML = summary;
+  popupContent.style.boxSizing = "border-box";
+  popupContent.style.position = "relative";
+  popupContent.style.fontSize = "18px"; // Increased font size
+  popupContent.innerHTML += summary;
 
-  const closeButton = document.createElement("span");
-  closeButton.innerHTML = "&times;";
-  closeButton.style.position = "absolute";
-  closeButton.style.top = "10px";
-  closeButton.style.right = "20px";
-  closeButton.style.fontWeight = "bold";
-  closeButton.style.fontSize = "20px";
-  closeButton.style.cursor = "pointer";
-  closeButton.addEventListener("click", () => {
+  // Create a draggable header
+  const header = document.createElement("div");
+  header.style.width = "100%";
+  header.style.height = "20px";
+  header.style.backgroundColor = "#f1f1f1";
+  header.style.cursor = "move";
+  header.style.boxSizing = "border-box";
+  header.style.padding = "0 10px";
+
+  // Create a close icon
+  const closeIcon = document.createElement("span");
+  closeIcon.innerHTML = "&times;";
+  closeIcon.style.position = "absolute";
+  closeIcon.style.top = "5px";
+  closeIcon.style.right = "10px";
+  closeIcon.style.fontWeight = "bold";
+  closeIcon.style.fontSize = "20px";
+  closeIcon.style.cursor = "pointer";
+  closeIcon.addEventListener("click", () => {
     popupContainer.remove();
   });
 
-  const copyButton = document.createElement("span");
-  copyButton.className = "fa fa-clipboard";
-  copyButton.style.position = "absolute";
-  copyButton.style.top = "10px";
-  copyButton.style.left = "20px";
-  copyButton.style.cursor = "pointer";
-  copyButton.title = "Copy to clipboard";
-  copyButton.addEventListener("click", () => {
-    const textarea = document.createElement("textarea");
-    textarea.textContent = response;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-    copyButton.title = "Copied!";
-    setTimeout(() => {
-      copyButton.title = "Copy to clipboard";
-    }, 1500);
-  });
+  let isDragging = false;
+  let offsetX, offsetY;
 
-  popupContent.style.position = "relative";
-  
-  popupContent.appendChild(copyButton);
-  popupContent.appendChild(closeButton);
+  function onMouseDown(event) {
+    isDragging = true;
+    offsetX = event.clientX - popupContainer.getBoundingClientRect().left;
+    offsetY = event.clientY - popupContainer.getBoundingClientRect().top;
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  function onMouseMove(event) {
+    if (isDragging) {
+      popupContainer.style.left = event.clientX - offsetX + "px";
+      popupContainer.style.top = event.clientY - offsetY + "px";
+      popupContainer.style.right = "auto";
+      popupContainer.style.bottom = "auto";
+    }
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  }
+
+  header.addEventListener("mousedown", onMouseDown);
+  popupContent.insertBefore(header, popupContent.firstChild);
+  popupContent.appendChild(closeIcon);
   popupContainer.appendChild(popupContent);
   document.body.appendChild(popupContainer);
 
@@ -197,3 +212,6 @@ function displayResponse(summary) {
     }
   });
 }
+
+
+
