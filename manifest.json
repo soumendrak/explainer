@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Text Simplifier",
+  "version": "1.0",
+  "description": "Summarize and explain highlighted text using OpenAI API",
+  "permissions": ["activeTab", "contextMenus", "storage"],
+  "background": {
+    "scripts": ["main.js"],
+    "persistent": false
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "icon16.png",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["main.js"]
+    }
+  ],
+   "web_accessible_resources": ["config.json"]
+}
