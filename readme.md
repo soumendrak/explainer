@@ -2,11 +2,14 @@
 
 This browser extension works for Chromium related browsers like Chrome, Edge, Brave and Vivaldi.
 
+![Summarizer Text](./summary.gif)
+
+
 ## Features
 
 It has two capabilities:
-1. Summarize text
-2. Explain and define terms
+1. Summarize selected text
+2. Explain and define selected text
 
 ## Usage
 
