@@ -1,0 +1,4 @@
+{
+  "openai_api_key": "YOUR OPENAI API Key",
+  "model": "gpt-3.5-turbo"
+}

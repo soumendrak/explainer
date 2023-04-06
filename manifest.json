@@ -14,8 +14,7 @@
     "128": "icon128.png"
   },
   "browser_action": {
-    "default_icon": "icon16.png",
-    "default_popup": "popup.html"
+    "default_icon": "icon16.png"
   },
   "content_scripts": [
     {
@@ -23,5 +22,7 @@
       "js": ["main.js"]
     }
   ],
-   "web_accessible_resources": ["config.json"]
+   "web_accessible_resources": [
+    "config.json"
+  ]
 }

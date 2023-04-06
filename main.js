@@ -55,17 +55,25 @@ async function fetchApiKey() {
   return config.openai_api_key;
 }
 
+async function fetchModel() {
+  const response = await fetch(chrome.runtime.getURL("config.json"));
+  const config = await response.json();
+  return config.model || "gpt-3.5-turbo";
+}
+
+
 async function fetchSummary(text) {
   const apiKey = await fetchApiKey();
-  const url = "https://api.openai.com/v1/completions";
-  const prompt = `Summarize this with simple english, emojis, humour and real life analogies:\n\n${text}. 
+  const url = "https://api.openai.com/v1/chat/completions";
+  const content = `Summarize this with simple english, emojis, humour and real life analogies:\n\n${text}. 
   Please return response in html format. Please complete entire response.`;
+  const model = await fetchModel();
 
   const requestBody = {
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 0.7,
-    max_tokens: 64,
+    model: model,
+    messages: [{"role": "user", "content": content}],
+    temperature: 0.8,
+    max_tokens: 500,
     top_p: 1.0,
     frequency_penalty: 0.0,
     presence_penalty: 0.0,
@@ -82,22 +90,23 @@ async function fetchSummary(text) {
 
   const responseData = await response.json();
   console.log("API response:", responseData);
-  const summary = responseData.choices && responseData.choices[0] && responseData.choices[0].text ? responseData.choices[0].text.trim() : "No summary available.";
+  const summary = responseData.choices && responseData.choices[0] && responseData.choices[0].message.content ? responseData.choices[0].message.content.trim() : "No summary available.";
   displayResponse(summary)
   return summary;
 }
 
 async function fetchExplanation(word) {
   const apiKey = await fetchApiKey();
-  const url = "https://api.openai.com/v1/completions";
-  const prompt = `Explain the word "${word}" in first principle analysis with emojis and funnier way 
-  ending with a real life analogy if possible. Please return response in html format. Please complete entire response.`;
+  const url = "https://api.openai.com/v1/chat/completions";
+  const content = `Explain the word "${word}" in first principle analysis with emojis ending with a 
+  real life analogy if possible. Please return response in html format. Please complete entire response.`;
+  const model = await fetchModel();
 
   const requestBody = {
-    model: "text-davinci-003",
-    prompt: prompt,
-    temperature: 0.7,
-    max_tokens: 64,
+    model: model,
+    messages: [{"role": "user", "content": content}],
+    temperature: 0.4,
+    max_tokens: 500,
     top_p: 1.0,
     frequency_penalty: 0.0,
     presence_penalty: 0.0,
@@ -113,7 +122,7 @@ async function fetchExplanation(word) {
   });
 
   const responseData = await response.json();
-  const explanation = responseData.choices && responseData.choices[0] && responseData.choices[0].text ? responseData.choices[0].text.trim() : "No explanation available.";
+  const explanation = responseData.choices && responseData.choices[0] && responseData.choices[0].message.content ? responseData.choices[0].message.content.trim() : "No explanation available.";
   displayResponse(explanation)
   return explanation;
 }
@@ -153,7 +162,29 @@ function displayResponse(summary) {
     popupContainer.remove();
   });
 
+  const copyButton = document.createElement("span");
+  copyButton.className = "fa fa-clipboard";
+  copyButton.style.position = "absolute";
+  copyButton.style.top = "10px";
+  copyButton.style.left = "20px";
+  copyButton.style.cursor = "pointer";
+  copyButton.title = "Copy to clipboard";
+  copyButton.addEventListener("click", () => {
+    const textarea = document.createElement("textarea");
+    textarea.textContent = response;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    copyButton.title = "Copied!";
+    setTimeout(() => {
+      copyButton.title = "Copy to clipboard";
+    }, 1500);
+  });
+
   popupContent.style.position = "relative";
+  
+  popupContent.appendChild(copyButton);
   popupContent.appendChild(closeButton);
   popupContainer.appendChild(popupContent);
   document.body.appendChild(popupContainer);
